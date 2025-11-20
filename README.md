@@ -29,7 +29,7 @@ Denisova R
 
 AltaiNeandertal R
 
-**Another important note is when painting the archaics, you should leave one outgroup individual out, so that in the end all inidivuals are painted by the same number of outgroup inidivuals (because an outgroup individual cannot be painted by themselves)**
+**Another important note is when painting the archaics, you should leave one outgroup individuals out, so that in the end all inidivuals are painted by the same number of outgroup individuals (because an outgroup individual cannot be painted by themselves)**
 
 **Step 2:**
 
@@ -64,8 +64,8 @@ Example command for 1000 genomes:
 -t 1000g_idfile.txt \
 -f2 target.popfile.txt \
 -c Painting/1000G_mask_all.chunklengths.out \
--s0 -l 10 20 40 -e 0.5 -s 0 \
--o 1000G_targets_CHB_e0.5_masked_chr_${chr}
+-s0 -l 10 20 40 -e 0.1 -s 0 \
+-o 1000G_targets_CHB_masked_chr_${chr}
 
 
 An example target.popfile.txt would be:
