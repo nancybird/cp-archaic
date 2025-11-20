@@ -20,7 +20,7 @@ YRI D \
 Vindija R \
 Chagyrskaya R \
 Denisova R \
-AltaiNeandertal R \
+AltaiNeandertal R 
 
 **Another important note is when painting the archaics, you should leave one outgroup individual out, so that in the end all individuals are painted by the same number of outgroup individuals (because an outgroup individual cannot be painted by themselves)**
 
@@ -28,25 +28,16 @@ AltaiNeandertal R \
 
 Paint the targets to get inferred archaic ancestry segments.
 
--g Chromoainter haps file (no default, required)
-
--r ChromoPainter recomrate file (no default, required)
-
--t ChromoPainter idfile (no default, required)
-
--f2 Popfile (see below for example)
-
--c chunklengths file from **Step 1**
-
--s 0 (don't make samples files)
-
--s0 print out start/end points of each inferred archaic segment
-
--l <double1> <double2> <double3>  inferred archaic segments must be >double1 before and >double2 after stitching across segments with gap <double3 between them (in kb); otherwise remove (default and recommended settings = 10 20 40)
-
--e  <double> in target individual, SNPs with Pr(archaic) >= this value will be called 'archaic' (initially, before remove segments/merging) if using '-f2' switch (recommended value= 0.1 from simulations)
-
--o output file
+-g Chromoainter haps file (no default, required) \
+-r ChromoPainter recomrate file (no default, required) \
+-t ChromoPainter idfile (no default, required) \
+-f2 Popfile (see below for example) \
+-c chunklengths file from **Step 1** \
+-s 0 (don't make samples files) \
+-s0 print out start/end points of each inferred archaic segment \
+-l <double1> <double2> <double3>  inferred archaic segments must be >double1 before and >double2 after stitching across segments with gap <double3 between them (in kb); otherwise remove (default and recommended settings = 10 20 40) \
+-e  <double> in target individual, SNPs with Pr(archaic) >= this value will be called 'archaic' (initially, before remove segments/merging) if using '-f2' switch (recommended value= 0.1 from simulations) \
+-o output file \
 
 
 Example command for 1000 genomes:
