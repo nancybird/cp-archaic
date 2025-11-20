@@ -1,9 +1,9 @@
 # cp-archaic
-Chromopainter-based method for inferring local ancestry, specifically suited for archaic ancestry.
+ChromoPainter-based method for inferring local ancestry, specifically suited for archaic ancestry.
 
 Compile with:  gcc -Wall -o cp-archaic cp-archaic.c -lm -lz
 
-# EXAMPLE USAGE TO INFER NEANDERTHAL ANCESTRY SEGMENTS
+# Example usage to infer Neanderthal segments in 1000 genomes
 
 Method requires 'outgroup' assumed to have minimal amounts of introgression, and high-coverage archaic references (we use Altai, Chagyrskaya, Vindija and Denisovan, more is better!). These, along with target individuals must be phased and in ChromoPainter format. See https://github.com/nancybird/vcftochromopainter for code to convert to ChromoPainter format from a phased vcf.
 
@@ -13,23 +13,16 @@ Paint both the outgroup and the archaics using the outgroup and archaics as dono
 
 A popfile for step 1 could e.g. look like: 
 
-Vindija D
+Vindija D \
+Chagyrskaya D \
+Denisova D \
+YRI D \
+Vindija R \
+Chagyrskaya R \
+Denisova R \
+AltaiNeandertal R \
 
-Chagyrskaya D
-
-Denisova D
-
-YRI D
-
-Vindija R
-
-Chagyrskaya R
-
-Denisova R
-
-AltaiNeandertal R
-
-**Another important note is when painting the archaics, you should leave one outgroup individuals out, so that in the end all inidivuals are painted by the same number of outgroup individuals (because an outgroup individual cannot be painted by themselves)**
+**Another important note is when painting the archaics, you should leave one outgroup individual out, so that in the end all individuals are painted by the same number of outgroup individuals (because an outgroup individual cannot be painted by themselves)**
 
 **Step 2:**
 
@@ -70,23 +63,17 @@ Example command for 1000 genomes:
 
 An example target.popfile.txt would be:
 
-Vindija D NA
-
-Chagyrskaya D NA
-
-Denisova D NA
-
-YRI D NA
-
-YRI S 0.98
-
-AltaiNeandertal A 0.02
-
-CHB T NA
+Vindija D NA \
+Chagyrskaya D NA \
+Denisova D NA \
+YRI D NA \ 
+YRI S 0.98 \
+AltaiNeandertal A 0.02 \
+CHB T NA \
 
 where 0.02 gives the prior genome-wide probability of archaic ancestry. We find that varying the prior probabilty (up to 10%) does not significantly alter results. 
 
-For speed, we recommend running cp-archaic on targets in batchs (e.g. 10 inds at a time) using specifications after the popfile e.g. -f2 target.popfile.txt 1 9 
+**Tip:** For speed, we recommend running cp-archaic on targets in batchs (e.g. 10 inds at a time) using specifications after the popfile e.g. -f2 target.popfile.txt 1 9 
 
 
 If using cp-archaic please cite XX
