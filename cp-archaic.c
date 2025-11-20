@@ -1939,7 +1939,7 @@ int loglik(int nind_tot, int nhaps_startpop, int *p_nloci, int p_nhaps, double N
 
 void usage()
 {
-  printf("to run: use './ChromoPainterv2' with following options:\n");
+  printf("to run: use './cp-archaic' with following options:\n");
   printf ("       -g <geno.filein>  (REQUIRED; no default)\n");
   printf ("       -r <recommap.filein>  (REQUIRED; no default -- unless using -u switch)\n");
   printf ("       -t <labels.filein> file listing id and population labels for each individual (REQUIRED; no default -- unless using -a switch)\n");
