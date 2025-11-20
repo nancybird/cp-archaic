@@ -86,3 +86,8 @@ CHB T NA
 
 where 0.02 gives the prior genome-wide probability of archaic ancestry. We find that varying the prior probabilty (up to 10%) does not significantly alter results. 
 
+For speed, we recommend running cp-archaic on targets in batchs (e.g. 10 inds at a time) using specifications after the popfile e.g. -f2 target.popfile.txt 1 9 
+
+
+If using cp-archaic please cite XX
+
