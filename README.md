@@ -57,7 +57,7 @@ An example target.popfile.txt would be:
 Vindija D NA \
 Chagyrskaya D NA \
 Denisova D NA \
-YRI D NA \ 
+YRI D NA \
 YRI S 0.98 \
 AltaiNeandertal A 0.02 \
 CHB T NA \
