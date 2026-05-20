@@ -67,5 +67,5 @@ where 0.02 gives the prior genome-wide probability of archaic ancestry. We find 
 **Tip:** For speed, we recommend running cp-archaic on targets in batchs (e.g. 10 inds at a time) using specifications after the popfile e.g. -f2 target.popfile.txt 1 9 
 
 
-If using cp-archaic please cite XX
+If using cp-archaic please cite Bird N, Walker E, Hellenthal G. The reliability of inferred archaic segments. Hum Popul Genet Genom. 2026;6(2):0007. https://doi.org/10.47248/hpgg2606020007
 
