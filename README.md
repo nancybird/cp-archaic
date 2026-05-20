@@ -67,7 +67,7 @@ cp-archaic arguments:
 -s0 print out start/end points of each inferred archaic segment \
 -l <double1> <double2> <double3>  inferred archaic segments must be >double1 before and >double2 after stitching across segments with gap <double3 between them (in kb); otherwise remove (default and recommended settings = 10 20 40) \
 -e  <double> in target individual, SNPs with Pr(archaic) >= this value will be called 'archaic' (initially, before remove segments/merging) if using '-f2' switch (recommended value= 0.1 from simulations) \
--o output file \
+-o output file 
 
 
 Example command for 1000 genomes:
