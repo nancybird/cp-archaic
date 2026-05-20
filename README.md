@@ -90,7 +90,7 @@ Denisova D NA \
 YRI D NA \
 YRI S 0.98 \
 AltaiNeandertal A 0.02 \
-CHB T NA \
+CHB T NA 
 
 where 0.02 gives the prior genome-wide probability of archaic ancestry. We find that varying the prior probabilty (up to 10%) does not significantly alter results. 
 
