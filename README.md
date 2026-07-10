@@ -42,8 +42,7 @@ An example command for step 1 could be:
 -g 1000G_masked_chr${chr}.chromopainter.inp.haps.gz \
 -r 1000G_masked_chr${chr}.chromopainter.inp.recomrates \
 -t 1000g_idfile.txt \
--f2 outgroup.popfile.txt 0 0 (OR ARCHAIC POP FILE SEPARATELY) \
--c Painting/1000G_mask_all.chunklengths.out \
+-f outgroup.popfile.txt 0 0 (OR ARCHAIC POP FILE SEPARATELY) \
 -s 0 \
 -o 1000G_outgroup_chr${chr}
 
@@ -66,7 +65,7 @@ cp-archaic arguments:
 -s 0 (don't make samples files) \
 -s0 print out start/end points of each inferred archaic segment \
 -l <double1> <double2> <double3>  inferred archaic segments must be >double1 before and >double2 after stitching across segments with gap <double3 between them (in kb); otherwise remove (default and recommended settings = 10 20 40) \
--e  <double> in target individual, SNPs with Pr(archaic) >= this value will be called 'archaic' (initially, before remove segments/merging) if using '-f2' switch (recommended value= 0.1 from simulations) \
+-e  <double> in target individual, SNPs with Pr(archaic) >= this value will be called 'archaic' (initially, before remove segments/merging) if using '-f2' switch (recommended value= 0.1 from simulations).  \
 -o output file 
 
 
