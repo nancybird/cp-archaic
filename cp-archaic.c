@@ -11,9 +11,30 @@
 /*****************************************************************
 // TAKES A PHASE-STYLE SET OF n PHASED HAPLOTYPES, SUCH THAT THE TOP x HAPLOTYPES ARE POTENTIAL DONORS TO THE BOTTOM n-x HAPLOTYPES (THESE n-x HAPLOTYPES ARE ASSUMED TO BE DIPLOID INDIVIDUALS, WITH EACH INDIVIDUAL'S TWO HAPLOTYPES ON CONSECUTIVE LINES). THEN PAINTS EACH OF THE n-x BOTTOM HAPLOTYPES AS A MOSAIC OF THE x DONOR HAPLOTYPES, WITH OR WITHOUT MAXIMIXING OVER N_e (DEFAULT) OR COPYING PROPORTIONS (IF USER SELECTS) USING E-M, OUTPUTTING AS MANY SAMPLES AS DESIRED (AFTER MAXIMIZATION, IF CHOSEN -- MAXIMIZATION IS WHERE THE DIPLOID ASSUMPTION COMES IN, AS N_E ESTIMATES OR COPYING PROPORTIONS ARE AVERAGED OVER AN INDIVIDUAL'S TWO HAPS AT EACH E-M STEP)
 
-// to compile:  gcc -Wall -o cp-archaic cp-archaic.c -lm -lz
+// DESCRIPTION, if running with -e X -l W Y Z: "CP-NNLS first defines initial archaic segments as being > Wkb long with > 10 consecutive SNPs with probability >= X of being archaic. It next performs a segment-merging step that may affect some of these initial segments, where it extends each initial segment on each side until reaching a SNP with probability < 0.02 of being archaic, and then merges segments whose new such endpoints are separated by <=Ykb. The final list of inferred archaic segments are then required to be > Ykb."
+// longer description:
+//    initial call of "archaic segments":
+//      (1) segment must have >10 consecutive SNPs with Pr(archaic) >= X in a segment > Wkb
+//
+//    stitching together two nearby archaic segments (A,B) from (1):
+//      (2) extend end-point of segment A to right until Pr(archaic) < 0.02
+//      (3) extend start-point of segment B to left until Pr(archaic) < 0.02
+//      (4) merge A and B into one segment if new endpoints of (2) and (3) are separated by <= Zkb
+//    getting final segments:
+//      (5) segment from (1), or merged segment from (4), must be > Ykb  
 
-// to run: "./cp-archaic" with following options:
+// Next, the actual segment startpoint/endpoint definition depends on which column of the output file ".segments.gz" you are using:
+//  (i) The last two columns {"segment.left.snp.index", "segment.right.snp.index"} give the index (number) of the left-most and right-most SNPs from (5)
+//  (ii) The columns {"left.break.position","right.break.position"} instead do the following for each segment from (i):
+//     (ii)-(a) extend to left of (i) to include all SNPs <= 200bp of this left endpoint SNP
+//     (ii)-(b) if avg[Pr(archaic)] across all SNPs in (ii)-(a) is < 0.02 then stop; otherwise, extend for another 200bp window and see if avg[Pr(archaic)] across all SNPs in that window is < 0.02
+//     (iii)-(c) once you find a window where avg[Pr(archaic)] < 0.02, define "left.break.position" to be midway between the position of the left endpoint SNP from (i) and the left-most SNP position of this window 
+//     (iii)-(d) do the analogous for extension to the right of the right endpoint of (i)
+// Summary of step (ii): "We next choose the left and right breakpoints for each of these final segments. To do so, we calculated the average probability of being archaic across SNPs within non-overlapping 200bp windows extending from the start and endpoints of each segment. We choose the left breakpoint of each segment to be midway between the position of the segment's startpoint and the nearest 200bp window where this average probability was < 0.02 (analogous for the right breakpoint)."
+
+// to compile:  gcc -Wall -o ChromoPainterWithNNLSReportSegments ChromoPainterWithNNLSReportSegments.c -lm -lz
+
+// to run: "./ChromoPainterWithNNLSReportSegments" with following options:
 //                 -g geno.filein (PHASEish-style file; no default, required)
 //                 -r recommap.filein (no default, required)
 //                 -t file listing id and population labels for each individual (no default, required)
@@ -56,10 +77,10 @@
 
 
 // example1:  (basic ChromoPainterv2) 
-//        ./cp-archaic -g example/BrahuiYorubaSimulationChrom22.haplotypes -r example/BrahuiYorubaSimulationChrom22.recomrates -f example/BrahuiYorubaSimulation.poplist.txt 0 0 -t example/BrahuiYorubaSimulation.idfile.txt -o example/BrahuiYorubaSimulationChrom22.chromopainter.out
+//        ./ChromoPainterWithNNLSReportSegments -g example/BrahuiYorubaSimulationChrom22.haplotypes -r example/BrahuiYorubaSimulationChrom22.recomrates -f example/BrahuiYorubaSimulation.poplist.txt 0 0 -t example/BrahuiYorubaSimulation.idfile.txt -o example/BrahuiYorubaSimulationChrom22.chromopainter.out
 
 // example2:  (archaic segment inferring/printing) 
-//       ./cp-archaic -g ../NeanderthalSims/CPinput/SkovSimNeanderthal_10Kinds_AscertainArchaicAfrica1Only_chr22.cp.haps.gz -r ../NeanderthalSims/CPinput/SkovSimNeanderthal_10Kinds_AscertainArchaicAfrica1Only_chr22.cp.recomratesFIXED -f2 ../NeanderthalSims/NancySkovSims.popfileTARGETSHMM.cprogram.txt 1 1000 -t ../NeanderthalSims/NancySkovSimsSubsetAFRICA_10Kinds.idfileCORRECTAfrica1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors.txt -c ../NeanderthalSims/CPoutput/NancySkovSimsSubsetAFRICA_10Kinds_AscertainArchaicAfrica1Only_AllTargetsPlusAfrica1_Africa1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors_chr22FIXEDrecom.cpout.chunklengths.out -o ../NeanderthalSims/NeandINFER/NancySkovSimsSubsetAFRICA_10Kinds_AscertainArchaicAfrica1Only_AllTargetsPlusAfrica1_Africa1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors_chr22Ind1to1000.neanderthalinferSEGMENTSCprogram -s 0 -s0 -l 10 20 40
+//       ./ChromoPainterWithNNLSReportSegments -g ../NeanderthalSims/CPinput/SkovSimNeanderthal_10Kinds_AscertainArchaicAfrica1Only_chr22.cp.haps.gz -r ../NeanderthalSims/CPinput/SkovSimNeanderthal_10Kinds_AscertainArchaicAfrica1Only_chr22.cp.recomratesFIXED -f2 ../NeanderthalSims/NancySkovSims.popfileTARGETSHMM.cprogram.txt 1 1000 -t ../NeanderthalSims/NancySkovSimsSubsetAFRICA_10Kinds.idfileCORRECTAfrica1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors.txt -c ../NeanderthalSims/CPoutput/NancySkovSimsSubsetAFRICA_10Kinds_AscertainArchaicAfrica1Only_AllTargetsPlusAfrica1_Africa1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors_chr22FIXEDrecom.cpout.chunklengths.out -o ../NeanderthalSims/NeandINFER/NancySkovSimsSubsetAFRICA_10Kinds_AscertainArchaicAfrica1Only_AllTargetsPlusAfrica1_Africa1Neanderthal1LOOOnlyAfrica1PlusCombinedArchaicAsDonors_chr22Ind1to1000.neanderthalinferSEGMENTSCprogram -s 0 -s0 -l 10 20 40
 
 
 *******************************************************************/
@@ -639,7 +660,7 @@ int print_segments_function(int print_segments, int print_segments_all, char * i
 			           // find final segment right breakpoint:
 		  right_breakpoint=-9.0;
 		  start_snp_index=segment_end_vec[j];
-		  while (start_snp_index>=0)
+		  while (start_snp_index<(nsites-1))
 		    {
 		      mean_around_breakpoint=0.0;
 		      for (l=start_snp_index; l<nsites; l++)
@@ -647,11 +668,11 @@ int print_segments_function(int print_segments, int print_segments_all, char * i
 			  if ((pos_vec[l]-pos_vec[start_snp_index])>seg_bin_size) break;
 			  mean_around_breakpoint=mean_around_breakpoint+prob_vals[k][l];
 			}
-		      if ((mean_around_breakpoint/(start_snp_index-l))<nnls_thresh_segment_end) break;
+		      if ((mean_around_breakpoint/(l-start_snp_index))<nnls_thresh_segment_end) break;
 		      start_snp_index=l;
-		      if (start_snp_index==0) break;
+		      if (start_snp_index>=(nsites-1)) break;
 		    }
-		  if (start_snp_index>0) right_breakpoint=(pos_vec[segment_end_vec[j]]+pos_vec[l+1])/2.0;
+		  if (start_snp_index<(nsites-1)) right_breakpoint=(pos_vec[segment_end_vec[j]]+pos_vec[l-1])/2.0;
 
 			           // print out:
 		  gzprintf(fout11,"%s %s %d %s %.5lf %.5lf %d %d\n",anc_pop[k],ind_label,hap_val,pop_label,left_breakpoint,right_breakpoint,segment_start_vec[j]+1,segment_end_vec[j]+1);
@@ -1939,7 +1960,7 @@ int loglik(int nind_tot, int nhaps_startpop, int *p_nloci, int p_nhaps, double N
 
 void usage()
 {
-  printf("to run: use './cp-archaic' with following options:\n");
+  printf("to run: use './ChromoPainterv2' with following options:\n");
   printf ("       -g <geno.filein>  (REQUIRED; no default)\n");
   printf ("       -r <recommap.filein>  (REQUIRED; no default -- unless using -u switch)\n");
   printf ("       -t <labels.filein> file listing id and population labels for each individual (REQUIRED; no default -- unless using -a switch)\n");
@@ -1979,7 +2000,7 @@ int main(int argc, char *argv[])
   struct data_t *Data;
   int i,j,k;
   double bpval;
-  double totaldonorprobs, prob_val, count_val;
+  double totaldonorprobs, prob_val, count_val, max_prob, min_prob;
   int log_lik_check;
   int ndonors, ndonorpops, nrecpops, nANCpops, nsurrpops, ndonorpops2, donor_found, print_segments, print_segments_probs, print_segments_all;
   int nind, nsites, cond_nhaps, cond_nind, num_rec_drift;
@@ -3364,13 +3385,27 @@ int main(int argc, char *argv[])
       printf("donor: ");
       for (j=0; j < ndonorpops; j++) printf(" %s",donor_pop_vec[j]);
       printf("\n");
+      max_prob=0.0;
+      min_prob=1.0;
       for (i=0; i < nANCpops; i++)
 	{
 	  printf("Pr(%s|donor)",anc_pop_vec[i]);
-	  for (j=0; j < ndonorpops; j++) 
-	    printf(" %lf",prob_anc_given_copy_mat[i][j]);
+	  for (j=0; j < ndonorpops; j++)
+	    {
+	      printf(" %lf",prob_anc_given_copy_mat[i][j]);
+	      if (prob_anc_given_copy_mat[i][j]>max_prob) max_prob=prob_anc_given_copy_mat[i][j];
+	      if (prob_anc_given_copy_mat[i][j]<min_prob) min_prob=prob_anc_given_copy_mat[i][j];
+	    }
 	  printf("\n");
 	}
+      ///nnls_prob_thresh_val=0.98*max_prob;
+      if (nnls_prob_thresh_val>max_prob && print_segments==1)
+	{
+	  printf("Your specified archaic threshold probabilty ('-e' switch) is %lf, but the maximum possible Pr(archaic) per SNP is %lf. Exiting....\n",nnls_prob_thresh_val,max_prob);
+	  exit(1);
+	}
+      nnls_prob_thresh_nonarchaic=min_prob+nnls_prob_thresh_nonarchaic;
+      nnls_thresh_segment_end=min_prob+nnls_thresh_segment_end;
       printf(" Threshold for calling a SNP archaic: Pr(archaic)>=%.5lf\n",nnls_prob_thresh_val);
     }
   if (all_versus_all_ind==1)
